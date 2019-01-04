@@ -64,9 +64,7 @@ def make_local_jobs(script: str, experiments: list, overwrite=False):
                 s += '--{}={} '.format(k, e[k])
             s += '\n'
             f.write(s)
-
             
-
 def make_condor_jobs(script: str, experiments: list, overwrite=False):
     """
     Writes a condor submission file, and also creates the executable if necessary. Preamble for the 
@@ -81,16 +79,16 @@ def make_condor_jobs(script: str, experiments: list, overwrite=False):
     :return: None
     """
     
-    cmds = ['cd /home/kaw293/"', '. /home/kaw293/.bashrc',
+    cmds = ['cd /home/kaw293/', '. /home/kaw293/.bashrc',
             'conda activate gpytorch']
-    python_cmd = ' '.join(['python {}.py'.format(script)] 
-                          + ['--{}={}'.format(k, e[k]) for e in experiments for k in e])
     for num_gpus in [1, 2, 4, 6]: 
-        job_dir = '/home/kaw293/jobs_{}'
+        job_dir = '/home/kaw293/jobs_{}'.format(num_gpus)
         if not os.path.exists(job_dir):
             os.makedirs(job_dir)
             
         for exp in experiments:
+            python_cmd = ' '.join(['python {}.py'.format(script)] 
+                                  + ['--{}={}'.format(k, exp[k]) for k in exp])
             name ='{}_{}'.format(exp['dataset'], exp['split'])
             sbatch_settings = [
                 '#!/bin/bash',
@@ -103,11 +101,12 @@ def make_condor_jobs(script: str, experiments: list, overwrite=False):
                 '#SBATCH --partition=default_gpu',
                 '#SBATCH --gres=gpu:{}'.format(num_gpus)]
             
-            sub_file= os.path.join([job_dir, "{}.sub".format(num_gpus, name)])
+            sub_file= os.path.join(job_dir, "{}_{}.sub".format(name, num_gpus))
             if not os.path.isfile(sub_file):
                 with open(sub_file, 'w') as f:
-                    f.writelines(sbatch_settings)
-                    f.write('&&'.join(cmds) + ' ' + python_cmd)
+                    for sset in sbatch_settings:
+                        f.write(sset + "\n")
+                    f.write(' && '.join(cmds + [python_cmd]))
                     
 def remove_already_run_experiments(table, experiments):
     res = []
@@ -139,5 +138,4 @@ combinations.append({'model' : models})
 experiments = make_experiment_combinations(combinations)
 #experiments = remove_already_run_experiments('regression', experiments)
 
-make_condor_jobs('../tasks/regression', experiments, overwrite=True)
-
+make_condor_jobs('/home/kaw293/bayesian_benchmarks/bayesian_benchmarks/tasks/regression', experiments, overwrite=True)

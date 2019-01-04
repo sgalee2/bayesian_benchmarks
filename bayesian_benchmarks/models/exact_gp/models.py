@@ -30,12 +30,13 @@ class RegressionModel:
         self.output_device = self.devices[0]
 
     def fit(self, X, Y):
-        X, Y = torch.tensor(X), torch.tensor(Y)
+        X, Y = torch.tensor(X).float(), torch.tensor(Y).float()
+        X, Y = X.to(self.output_device), Y.to(self.output_device)
 
         likelihood = gpytorch.likelihoods.GaussianLikelihood()
         self.likelihood = likelihood.to(self.output_device)
         model = ExactGPModel(X, Y, likelihood, self.devices, self.output_device)
-        self.model = model.to(self.model.output_device)
+        self.model = model.to(self.output_device)
 
         self.model.train()
         self.likelihood.train()
@@ -68,7 +69,7 @@ class RegressionModel:
         return
 
     def predict(self, Xs):
-        Xs = torch.tensor(Xs)
+        Xs = torch.tensor(Xs).float().to(self.output_device)
 
         self.model.eval()
         self.likelihood.eval()
@@ -80,7 +81,7 @@ class RegressionModel:
         return mean, var
 
     def sample(self, Xs, S):
-        Xs = torch.tensor(Xs)
+        Xs = torch.tensor(Xs).float().to(self.output_device)
 
         self.model.eval()
         self.likelihood.eval()
