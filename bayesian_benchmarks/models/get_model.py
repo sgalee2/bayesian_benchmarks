@@ -18,6 +18,7 @@ def get_classification_model(name):
 # add new regression models here 
 all_regression_models = [
       'linear',
+      'exact_gp',
       'variationally_sparse_gp',
       'variationally_sparse_gp_minibatch',
       'deep_gp_doubly_stochastic',
