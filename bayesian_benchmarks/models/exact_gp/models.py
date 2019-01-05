@@ -32,6 +32,7 @@ class RegressionModel:
     def fit(self, X, Y):
         X, Y = torch.tensor(X).float(), torch.tensor(Y).float()
         X, Y = X.to(self.output_device), Y.to(self.output_device)
+        Y = Y.view(-1)
 
         likelihood = gpytorch.likelihoods.GaussianLikelihood()
         self.likelihood = likelihood.to(self.output_device)
@@ -69,6 +70,7 @@ class RegressionModel:
         return
 
     def predict(self, Xs):
+        print("Start Predicting")
         Xs = torch.tensor(Xs).float().to(self.output_device)
 
         self.model.eval()
@@ -78,9 +80,11 @@ class RegressionModel:
             observed_pred = self.likelihood(latent_pred)
             mean, var = observed_pred.mean, observed_pred.variance
             mean, var = mean.cpu().numpy(), var.cpu().numpy()
+        print("Finished predicting")
         return mean, var
 
     def sample(self, Xs, S):
+        print("Start sampling")
         Xs = torch.tensor(Xs).float().to(self.output_device)
 
         self.model.eval()
@@ -90,4 +94,5 @@ class RegressionModel:
             observed_pred = self.likelihood(latent_pred)
             samples = observed_pred.sample(torch.Size([S]))
             samples = samples.cpu().numpy()
+        print("Finished sampling")
         return samples
