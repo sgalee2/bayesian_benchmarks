@@ -19,10 +19,12 @@ class ExactGPModel(gpytorch.models.ExactGP):
 
 
 class RegressionModel:
-    def __init__(self, is_test=False, seed=0):
+    def __init__(self, lr, iters, is_test=False, seed=0):
         torch.manual_seed(seed)
         self.is_test = is_test
         self.seed = seed
+        self.lr = lr
+        self.iters = iters
         self.likelihood = None
         self.model = None
         self.devices = [torch.device('cuda', i)
@@ -43,7 +45,7 @@ class RegressionModel:
         self.likelihood.train()
 
         optimizer = torch.optim.Adam([{'params': self.model.parameters()}],
-                                     lr=0.1)
+                                     lr=self.lr)
 
         # "Loss" for GPs - the marginal log likelihood
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
@@ -51,7 +53,7 @@ class RegressionModel:
         print("Start training")
         start_time = time.time()
         with gpytorch.settings.max_preconditioner_size(5):
-            training_iter = 5 if self.is_test else 30
+            training_iter = 5 if self.is_test else self.iters
             for i in range(training_iter):
                 # Zero gradients from previous iteration
                 optimizer.zero_grad()

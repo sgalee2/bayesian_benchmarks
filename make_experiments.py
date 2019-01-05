@@ -137,6 +137,8 @@ datasets = ['wilson_'+name for name in
 combinations.append({'dataset' : datasets})
 combinations.append({'split' : range(5)})
 combinations.append({'model' : models})
+combinations.append({'lr' : [0.1]})
+combinations.append({'iters' : [60]})
 experiments = make_experiment_combinations(combinations)
 #experiments = remove_already_run_experiments('regression', experiments)
 

@@ -21,12 +21,15 @@ def parse_args():  # pragma: no cover
     parser.add_argument("--split", default=0, nargs='?', type=int)
     parser.add_argument("--seed", default=0, nargs='?', type=int)
     parser.add_argument("--database_path", default='', nargs='?', type=str)
+    parser.add_argument("--lr", default='0.1', nargs='?', type=float)
+    parser.add_argument("--iters", default='30', nargs='?', type=int)
     return parser.parse_args()
 
 def run(ARGS, data=None, model=None, is_test=False):
 
     data = data or get_regression_data(ARGS.dataset, split=ARGS.split)
-    model = model or get_regression_model(ARGS.model)(is_test=is_test, seed=ARGS.seed)
+    model = model or get_regression_model(ARGS.model)(is_test=is_test, seed=ARGS.seed,
+                                                      lr=ARGS.lr, iters=ARGS.iters)
 
     model.fit(data.X_train, data.Y_train)
     m, v = model.predict(data.X_test)
