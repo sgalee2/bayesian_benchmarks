@@ -16,6 +16,7 @@ from bayesian_benchmarks.models.get_model import get_regression_model
 def parse_args():  # pragma: no cover
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default='linear', nargs='?', type=str)
+    parser.add_argument("--num_gpus", default=1, nargs='?', type=int)
     parser.add_argument("--dataset", default='energy', nargs='?', type=str)
     parser.add_argument("--split", default=0, nargs='?', type=int)
     parser.add_argument("--seed", default=0, nargs='?', type=int)
@@ -48,6 +49,7 @@ def run(ARGS, data=None, model=None, is_test=False):
     res['test_rmse_unnormalized'] = np.average(du**2)**0.5
 
     res.update(ARGS.__dict__)
+    res['model'] = '{}_{}'.format(res['model'], res['num_gpus'])
 
     if not is_test:  # pragma: no cover
         with Database(ARGS.database_path) as db:

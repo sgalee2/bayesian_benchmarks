@@ -79,16 +79,18 @@ def make_condor_jobs(script: str, experiments: list, overwrite=False):
     :return: None
     """
     
-    cmds = ['cd /home/kaw293/', '. /home/kaw293/.bashrc',
+    cmds = ['cd /home/kaw293/',
+            '. /home/kaw293/miniconda3/etc/profile.d/conda.sh',
             'conda activate gpytorch']
-    for num_gpus in [1, 2, 4, 6]: 
+    for num_gpus in [1, 2, 4, 6, 8]: 
         job_dir = '/home/kaw293/jobs_{}'.format(num_gpus)
         if not os.path.exists(job_dir):
             os.makedirs(job_dir)
             
         for exp in experiments:
             python_cmd = ' '.join(['python {}.py'.format(script)] 
-                                  + ['--{}={}'.format(k, exp[k]) for k in exp])
+                                  + ['--{}={}'.format(k, exp[k]) for k in exp]
+                                  + ['--num_gpus={}'.format(num_gpus)])
             name ='{}_{}'.format(exp['dataset'], exp['split'])
             sbatch_settings = [
                 '#!/bin/bash',
@@ -132,7 +134,7 @@ datasets = ['wilson_'+name for name in
             ]
            ]
 
-combinations.append({'dataset' : ['wilson_elevators']})
+combinations.append({'dataset' : datasets})
 combinations.append({'split' : range(5)})
 combinations.append({'model' : models})
 experiments = make_experiment_combinations(combinations)

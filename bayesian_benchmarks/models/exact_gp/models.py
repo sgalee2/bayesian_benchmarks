@@ -66,7 +66,7 @@ class RegressionModel:
                     self.model.likelihood.log_noise.item()
                 ))
                 optimizer.step()
-        print("Finished training. Elapsed time: {}".format(start_time - time.time()))
+        print("Finished training. Elapsed time: {}".format(time.time() - start_time))
         return
 
     def predict(self, Xs):
