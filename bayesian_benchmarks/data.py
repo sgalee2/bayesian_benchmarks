@@ -23,7 +23,7 @@ from urllib.request import urlopen
 logging.getLogger().setLevel(logging.INFO)
 import zipfile
 
-from bayesian_benchmarks.paths import DATA_PATH, BASE_SEED
+from paths import DATA_PATH, BASE_SEED
 
 _ALL_REGRESSION_DATATSETS = {}
 _ALL_CLASSIFICATION_DATATSETS = {}
@@ -222,6 +222,17 @@ class Yacht(Dataset):
         data = pandas.read_fwf(self.datapath, header=None).values[:-1, :]
         return data[:, :-1], data[:, -1].reshape(-1, 1)
 
+@add_regression
+class Parkinsons(Dataset):
+    N, D, name = 5875, 16, 'parkinsons'
+    url = uci_base_url + '/parkinsons/telemonitoring/parkinsons_updrs.data'
+    
+    def read_data(self):
+        data = pandas.read_csv(self.datapath).values
+        return data[:, 6:], data[:, 4:6]
+    
+    
+    
 
 class Classification(Dataset):
     def preprocess_data(self, X, Y):
